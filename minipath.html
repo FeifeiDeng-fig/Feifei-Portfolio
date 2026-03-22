@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HappyPath → MiniPath — Feifei Deng</title>
+<meta name="description" content="Designing how designers create with AI. A case study by Feifei Deng.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F7F6F3;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --text-faint: #999;
+    --surface: #EDECEA;
+    --border: #D9D7D3;
+    --white: #FFFFFF;
+    --accent: #2d4a7a;
+    --accent-hover: #1e3660;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ BACK NAV ═══ */
+  .back-nav {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 100;
+  }
+
+  .back-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover { border-color: var(--text); color: var(--text); }
+
+  /* ═══ PAGE CONTENT ═══ */
+  .page-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  .panel-theme { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(32px, 5vw, 48px); font-weight: 500; line-height: 1.15; margin-bottom: 12px; }
+  .panel-role { font-size: 14px; color: var(--text-faint); margin-bottom: 32px; font-family: 'Space Grotesk', sans-serif; }
+  p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px; max-width: 600px; }
+  .panel-divider { width: 40px; height: 1.5px; background: var(--accent); margin: 36px 0; }
+  .panel-section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
+  .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
+  .panel-img { width: 100%; height: 240px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-faint); letter-spacing: 1px; margin-bottom: 32px; }
+  /* ═══ VIDEO EMBED ═══ */
+  .panel-video {
+    width: 70vw;
+    max-width: 770px;
+    margin: 0 auto 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .panel-video video {
+    width: 100%;
+    display: block;
+  }
+  /* ═══ HOVER-SWAP IMAGE ═══ */
+  .img-swap {
+    position: relative;
+    width: 70vw;
+    max-width: 770px;
+    margin: 0 auto 32px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: default;
+  }
+  .img-swap img {
+    width: 100%;
+    display: block;
+    transition: opacity 0.4s ease;
+  }
+  .img-swap .img-hover-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .img-swap .img-hover-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .img-swap:hover .img-default { opacity: 0; }
+  .img-swap:hover .img-hover-wrap { opacity: 1; }
+  .img-swap-hint {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    background: rgba(255,255,255,0.85);
+    padding: 4px 10px;
+    border-radius: 3px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+  .img-swap:hover .img-swap-hint { opacity: 0; }
+  .panel-tags { display: flex; gap: 6px; margin: 28px 0; flex-wrap: wrap; }
+  .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
+
+  /* ═══ ANIMATE ═══ */
+  .panel-animate > * { opacity: 0; transform: translateY(12px); animation: panelFadeIn 0.4s ease forwards; }
+  .panel-animate > *:nth-child(1) { animation-delay: 0.05s; }
+  .panel-animate > *:nth-child(2) { animation-delay: 0.1s; }
+  .panel-animate > *:nth-child(3) { animation-delay: 0.15s; }
+  .panel-animate > *:nth-child(4) { animation-delay: 0.2s; }
+  .panel-animate > *:nth-child(5) { animation-delay: 0.25s; }
+  .panel-animate > *:nth-child(6) { animation-delay: 0.3s; }
+  .panel-animate > *:nth-child(7) { animation-delay: 0.35s; }
+  .panel-animate > *:nth-child(8) { animation-delay: 0.4s; }
+  .panel-animate > *:nth-child(9) { animation-delay: 0.45s; }
+  .panel-animate > *:nth-child(10) { animation-delay: 0.5s; }
+  .panel-animate > *:nth-child(n+11) { animation-delay: 0.55s; }
+  @keyframes panelFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  /* ═══ PAGE INDICATOR NAV ═══ */
+  .page-nav {
+    position: fixed;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--border);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .page-nav-dot:hover {
+    background: var(--text-muted);
+  }
+  .page-nav-dot.active {
+    width: 8px;
+    height: 24px;
+    border-radius: 4px;
+    background: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .page-content { padding: 80px 20px 80px; }
+    .back-nav { top: 16px; left: 16px; }
+    .page-nav { right: 12px; }
+  }
+  /* ═══ PASSWORD OVERLAY ═══ */
+  .pw-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+  .pw-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pw-box {
+    text-align: center;
+    max-width: 380px;
+    padding: 0 24px;
+  }
+  .pw-box p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: none;
+  }
+  .pw-box input {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .pw-box input:focus {
+    border-color: var(--accent);
+  }
+  .pw-box .pw-error {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pw-box .pw-error.visible {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <p>This project contains confidential work. Enter password to continue.</p>
+    <input type="password" id="pwInput" placeholder="Password" autocomplete="off">
+    <div class="pw-error" id="pwError">Incorrect password</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var overlay = document.getElementById('pwOverlay');
+  var input = document.getElementById('pwInput');
+  var error = document.getElementById('pwError');
+  if (sessionStorage.getItem('portfolio_auth') === 'granted') {
+    overlay.remove();
+    return;
+  }
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      if (input.value === 'Feifei') {
+        sessionStorage.setItem('portfolio_auth', 'granted');
+        overlay.classList.add('fade-out');
+        setTimeout(function() { overlay.remove(); }, 400);
+      } else {
+        error.classList.add('visible');
+        input.value = '';
+      }
+    }
+  });
+  input.addEventListener('input', function() {
+    error.classList.remove('visible');
+  });
+})();
+</script>
+
+<nav class="back-nav">
+  <a class="back-link" href="index.html">&larr; Back</a>
+</nav>
+
+<nav class="page-nav" id="pageNav">
+  <button class="page-nav-dot active" data-target="sec-start" title="Where it started"></button>
+  <button class="page-nav-dot" data-target="sec-retro" title="The honest retro"></button>
+  <button class="page-nav-dot" data-target="sec-build" title="Building to think"></button>
+  <button class="page-nav-dot" data-target="sec-question" title="The question"></button>
+</nav>
+
+<div class="page-content">
+  <div class="panel-animate">
+    <div class="panel-theme">Designing how designers create with AI</div>
+    <h1>HappyPath &rarr; MiniPath</h1>
+    <div class="panel-role">Lead UX Designer &middot; Amazon &middot; Dec 2024 – Present (Intermittently)</div>
+    <p style="font-family:'Space Grotesk',sans-serif;font-size:18px;color:var(--text-muted);line-height:1.5;margin-bottom:32px;font-style:italic;">A project where the designer and the product grew together — built, taken apart, and rebuilt as the thinking deepened.</p>
+    <div class="panel-video">
+      <video src="assets/minipath/MiniPathDemo_crop.mov" autoplay loop muted playsinline></video>
+    </div>
+
+    <div class="panel-section-label" id="sec-start">Where it started</div>
+    <p>At Amazon, the ratio of UX designers to PMs averages about 1 to 5. That imbalance means designers spend a lot of time on simple prototype requests that could be handled faster. HappyPath started as a volunteer project with a clear goal: build an AI prototyping tool embedded with Amazon's internal design system so PMs could create quick prototypes for straightforward requests — freeing designers for more strategic work.</p>
+    <p>As the only UX designer on a volunteer team that worked intermittently, I delivered the end-to-end experience: prototype creation, evaluation insights, history and version control, generation from existing products. HappyPath beta launched in April 2025 and became the first AI prototyping tool for Amazon operations.</p>
+    <div class="panel-video" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <img src="assets/minipath/HappyPathBeta.png" alt="HappyPath beta — setting up foundation, confidence scoring, version stitching, and design system analytics" style="width:100%;display:block;">
+    </div>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label" id="sec-retro">The honest retro</div>
+    <div class="img-swap">
+      <img class="img-default" src="assets/minipath/RetroCover.png" alt="HappyPath retro — annotated illustration questioning structure, features, goals, and interaction patterns">
+      <div class="img-hover-wrap">
+        <iframe src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fboard%2F4Q3JRDezYMx2FjIDkUxSDn%2FHappy-Path--New-%3Fnode-id%3D40000002-20563" allowfullscreen></iframe>
+      </div>
+      <span class="img-swap-hint">Hover to explore retro board</span>
+    </div>
+    <p>We had initial success, but reality caught up. Resources were constrained and implementation was slow. Meanwhile, the technology landscape was moving fast — tools emerging, paradigms shifting. We reached a point where we needed to stop and ask: what do we actually want to build, and does our current direction still make sense?</p>
+    <div class="panel-highlight">When the team wanted to pick HappyPath back up, I didn't show up ready to continue. I showed up with a full retro of my own work.</div>
+    <p>I went through every design decision I'd made — not defensively, but honestly. I pointed out gaps in my own thinking, places where my assumptions hadn't held up, directions where the technology had outgrown my original mental model. While others were ready to pick up where we left off, I made the case that the foundation needed rethinking.</p>
+    <p>This wasn't easy. It's one thing to critique someone else's work. It's another to stand in front of a team and say: here's what I got wrong, and here's why we shouldn't keep building on it.</p>
+    <p>A few things I challenged:</p>
+    <div class="panel-highlight">We were asking people to slow down and answer questions before they could generate anything. But how many people actually want to do that? The original model was: ask questions first, then generate. What if we flipped it — generate first, critique second, educate continuously.</div>
+    <p>Instead of making PMs fill out forms before they could see a prototype, the tool should give them something immediately — then ask the right questions, surface evaluation, call out gaps and opportunities. Meet people where they are, not where we wish they were.</p>
+    <p>I also rethought how the evaluation system communicates. The original framing was educational — teaching people UX best practices. But behavioral psychology tells us loss aversion works better than education. Don't say "let me teach you UX best practices." Say "your current flow will cost you $50K in lost conversions." Make the stakes concrete.</p>
+    <p>And a harder question about our design system: Meridian doesn't have components for every use case. If the tool only generates what existing components can express, it's limiting the output to what the system already knows — not what users actually need. Is the tool creating good UX for users, or only UX that fits existing design components?</p>
+
+    <div class="panel-highlight">Two audiences, one system.</div>
+    <p>From the beginning, I saw HappyPath as two-sided. The general user comes in to generate prototypes — that's the visible side. But every prompt, every generation, every workaround is also a signal. What components are people reaching for that don't exist? Where does the design system fall short? What patterns keep emerging across teams?</p>
+    <p>My original idea (2024) was straightforward: track usage patterns and surface them in a dashboard for the design systems team. But the DS team would still have to manually decide what's worth adding, design the component from scratch, document it, and add it to the system. The signal was there, but the action gap was huge.</p>
+    <p>During the retro, I enhanced this into something more ambitious: a dynamic, context-aware design system. Instead of just reporting what's missing, the tool would detect emerging patterns, propose component specifications automatically, generate alternatives that meet the DS guidelines, and show confidence levels. The DS team would review, approve or refine — and approved patterns would feed back into the system.</p>
+    <p>Three layers: a core design system that's always enforced (tokens, foundational components), a contextual pattern layer for domain-specific patterns that AI can generate and validate for accessibility and brand compliance, and a community pattern layer where new AI-generated patterns get stored, promoted after repeated use, and reviewed by the DS team. The design system stops being a static library and starts growing with the organization.</p>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label" id="sec-build">Building to think</div>
+    <p>There was another reason I felt the urgency to build something better. As more people started using AI prototyping tools, I noticed a quiet decline in quality. Not dramatic failures — just a steady drift toward 70–80% output. People were lowering their bar because they couldn't figure out how to push AI tools further. The unfamiliarity became a ceiling.</p>
+    <p>I recognized this pattern because I'd lived it. In college, my 3D modeling skills couldn't support my design ambitions — so I ended up designing what I could build in Rhino, not what I actually envisioned. The tool shaped the output. I watched the same thing happening with AI prototyping: people designing what the tool could produce, not what users needed.</p>
+    <div class="panel-highlight">If everyone is producing 70% quality and accepting it, the overall bar drops — and nobody notices because the new normal feels normal.</div>
+    <p>That's what MiniPath is for. Not just fast prototyping, but fast prototyping that's also high quality and domain-relevant. A tool that packages proven best practices so people don't have to rediscover them, that understands the specific domain it's generating for, and that produces prototypes good enough to actually deliver — not just good enough to demo.</p>
+    <p>By this point, I wasn't just using AI to assist my design work — I was building things with it to test whether my ideas held up. One day, thinking about what HappyPath should become, I decided to just build it. I used Claude Code to create MiniPath from scratch: a fully functional local version that calls Claude Code CLI to generate prototypes.</p>
+    <p>MiniPath isn't just a redesign. It's a bundle of everything I learned — and everything my AI-driven coworkers learned — about how designers actually work with AI. The processes, the prototypes, the workflows we spent months exploring and refining — I packaged them into built-in features.</p>
+
+    <div class="panel-highlight">1 — Component-level sandbox isolation</div>
+    <div class="panel-video">
+      <video src="assets/minipath/SanboxDemo.mov" autoplay loop muted playsinline></video>
+    </div>
+    <p>Click any component to isolate it into a floating sandbox window. Iterate on just that piece through scoped conversation. Changes merge back without regenerating the rest of the page. This came from watching how designers actually want to work — not describing changes in words and hoping, but pointing at a thing and saying "change this."</p>
+
+    <div class="panel-highlight">2 — Transparent AI reasoning</div>
+    <div class="panel-video">
+      <video src="assets/minipath/ReasoningDemo.mov" autoplay loop muted playsinline></video>
+    </div>
+    <p>Before generating, MiniPath shows its plan — what it considered, what tradeoffs it weighed, what decisions shaped the output. You review and redirect before execution, not after. This came from a frustration I saw everywhere: AI as a black box that produces something and you either accept it or start over.</p>
+
+    <div class="panel-highlight">3 — Exploration and variants</div>
+    <div class="panel-video">
+      <video src="assets/minipath/VariantsDemo.mov" autoplay loop muted playsinline></video>
+    </div>
+    <p>Four modes for the full prototype lifecycle: Exploration for divergent thinking, Working for focused building, Communication for stakeholder presentation, Artifact for final handoff. The prototype becomes the communication artifact — no separate slide decks or spec documents.</p>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label" id="sec-question">The question I'm sitting with</div>
+    <p>The redirection of HappyPath came from observation — watching how I use AI, how my teammates use AI, feeling people's excitement and their struggles. But building MiniPath surfaced a deeper problem I didn't expect: AI outputs converge toward sameness, especially under design system constraints. Every generation feels competent but familiar.</p>
+    <p>I started asking: what is "creation" actually? What is "innovation"? How do I build a tool that's deeply familiar with a specific domain — Amazon logistics and operations — while still enabling genuine creative exploration?</p>
+    <p>This thinking led to MiniPath's three-layer architecture:</p>
+
+    <div class="panel-highlight">Layer 1 — Base Design System: the foundational components and tokens (Meridian, Cloudscape)</div>
+    <div class="panel-highlight">Layer 2 — Domain Sub-System: team-curated patterns specific to a product domain, built on top of Layer 1</div>
+    <div class="panel-highlight">Layer 3 — Knowledge Base: strategic context — PRDs, research, design principles — that guides <em>why</em> certain design choices serve users better</div>
+
+    <p>I don't have a clean answer yet. But I think the question matters more than a premature conclusion. This project is a journal of me growing — not being afraid to question my own work, challenging myself to go deeper about what we actually want to create with these tools.</p>
+
+    <div class="panel-tags"><span class="panel-tag">0-to-1</span><span class="panel-tag">AI</span><span class="panel-tag">Interaction design</span><span class="panel-tag">Product design</span><span class="panel-tag">Vibe-coded prototype</span><span class="panel-tag">Volunteer</span></div>
+  </div>
+</div>
+
+<script>
+const dots = document.querySelectorAll('.page-nav-dot');
+const sections = ['sec-start', 'sec-retro', 'sec-build', 'sec-question'];
+
+// Click to scroll
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.getElementById(dot.dataset.target).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Scroll to update active dot
+window.addEventListener('scroll', () => {
+  let current = 0;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < window.innerHeight * 0.4) {
+      current = i;
+    }
+  });
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('active', i === current);
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feifei Deng — UX Designer</title>
+<meta name="description" content="Feifei Deng — Senior UX Designer. Complex systems, physical operations, AI.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F7F6F3;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --text-faint: #999;
+    --surface: #EDECEA;
+    --border: #D9D7D3;
+    --white: #FFFFFF;
+    --accent: #2d4a7a;
+    --accent-hover: #1e3660;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ FOYER GRID ═══ */
+  .foyer-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .foyer {
+    display: grid;
+    grid-template-columns: 1fr 0.5fr 0.5fr;
+    grid-template-rows: minmax(280px, 1fr) minmax(280px, 1fr);
+    gap: 3px;
+    flex: 1;
+    padding: 3px;
+    background: var(--border);
+    grid-template-areas:
+      "hero minipath minipath"
+      "hero workflow more-about";
+  }
+
+  /* ═══ CELLS ═══ */
+  .cell {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 32px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background 0.4s ease, transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: transform;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: cellEnter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes cellEnter { to { opacity: 1; transform: translateY(0); } }
+
+  /* Hero children hidden for GSAP */
+  .cell-hero .cell-name,
+  .cell-hero .cell-title,
+  .cell-hero .cell-sub,
+  .cell-hero .hero-contact { opacity: 0; }
+
+  /* ═══ LOADING SCREEN ═══ */
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--text);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .loading-greeting {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    line-height: 1.8;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-top-color: rgba(255,255,255,0.45);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+
+  .loading-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .cell-peek {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 1px;
+  }
+
+  .cell:not(.cell-hero):not(.cell-accent):hover .cell-peek { opacity: 0.6; }
+  .cell > *:not(.cell-peek) { position: relative; z-index: 1; }
+
+  /* Grid area assignments */
+  .cell-hero { grid-area: hero; }
+  .cell-featured { grid-area: minipath; }
+  .cell-workflow { grid-area: workflow; }
+
+  /* Stacked cell: More Projects + About in one grid area */
+  .cell-stack {
+    grid-area: more-about;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0;
+    background: transparent;
+  }
+  .cell-stack .cell {
+    flex: 1;
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .cell-stack .cell.cell-more {
+    flex: 3;
+  }
+
+  .cell-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-faint);
+    margin-bottom: auto;
+    transition: opacity 0.3s ease;
+  }
+  .cell:hover .cell-num { opacity: 0; }
+
+  .cell-theme {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    transition: transform 0.3s ease;
+  }
+
+  .cell:hover .cell-theme { transform: translateX(4px); }
+
+  .cell-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .cell-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    max-width: 320px;
+  }
+
+  .cell-tags { display: flex; gap: 6px; margin-top: 12px; }
+  .cell-tag {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    background: var(--surface);
+    color: var(--text-muted);
+  }
+
+  /* Hero */
+  .cell-hero {
+    grid-row: span 2;
+    background: var(--text);
+    color: var(--bg);
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px;
+    cursor: default;
+  }
+  .cell-hero .cell-title { font-size: clamp(36px, 5vw, 64px); color: var(--bg); margin-bottom: 16px; line-height: 1.1; }
+  .cell-hero .cell-sub { color: rgba(255,255,255,0.5); font-size: 16px; max-width: 400px; }
+  .cell-hero .hero-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cell-hero .cell-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 32px;
+  }
+
+  .hero-contact {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero-contact-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .hero-contact a {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero-contact a:hover { color: rgba(255,255,255,0.8); }
+
+  .hero-contact-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  /* Accent cell */
+  .cell-accent { background: var(--accent); }
+  .cell-accent .cell-num { color: rgba(255,255,255,0.4); }
+  .cell-accent .cell-title { color: var(--white); }
+  .cell-accent .cell-sub { color: rgba(255,255,255,0.65); }
+  .cell-accent .cell-theme { color: rgba(255,255,255,0.5); }
+
+  .cell-link { text-decoration: none; color: inherit; }
+  .cell:not(.cell-hero):not(.cell-accent):hover { background: var(--surface); }
+  .cell-accent:hover { background: var(--accent-hover); }
+
+  .cell-shortcut {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 24px; height: 24px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cell:hover .cell-shortcut { opacity: 1; }
+  .cell-accent .cell-shortcut { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.5); }
+
+  /* ═══ CURSOR ═══ */
+  .cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--text);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+    opacity: 0;
+  }
+  .cursor-ring.visible { opacity: 1; }
+  .cursor-ring.hovering { width: 64px; height: 64px; border-color: var(--accent); }
+  .cursor-ring .cursor-label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--white);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cursor-ring.hovering .cursor-label { opacity: 1; }
+
+  /* ═══ CELL EXPAND OVERLAY ═══ */
+  .cell-expand {
+    position: fixed;
+    z-index: 99;
+    pointer-events: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 32px;
+  }
+  .cell-expand > * {
+    opacity: 0;
+  }
+
+  /* ═══ PROJECT PANEL ═══ */
+  .panel-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(26,26,26,0);
+    transition: opacity 0.4s ease, background 0.4s ease;
+  }
+  .panel-overlay.active {
+    pointer-events: auto;
+    opacity: 1;
+    background: rgba(26,26,26,0.4);
+  }
+  .panel-overlay.no-transition { transition: none; }
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    width: 90%;
+    max-width: 760px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 56px;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .panel-overlay.active .panel { opacity: 1; }
+  /* For measuring panel size off-screen */
+  .panel-overlay.measuring {
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+  }
+  .panel-overlay.measuring .panel { opacity: 0; }
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .panel-close {
+    position: sticky;
+    top: 0; float: right;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+  .panel-close:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .panel-theme { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .panel h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 3.5vw, 40px); font-weight: 500; line-height: 1.2; margin-bottom: 12px; }
+  .panel-role { font-size: 14px; color: var(--text-faint); margin-bottom: 24px; font-family: 'Space Grotesk', sans-serif; }
+  .panel p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px; max-width: 600px; }
+  .panel-divider { width: 40px; height: 1.5px; background: var(--accent); margin: 28px 0; }
+  .panel-section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; }
+  .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
+  .panel-tags { display: flex; gap: 6px; margin: 20px 0; flex-wrap: wrap; }
+  .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
+  .panel-img { width: 100%; height: 200px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-faint); letter-spacing: 1px; margin-bottom: 28px; }
+  .panel .timeline-row { display: flex; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .panel .timeline-row:last-child { border-bottom: none; }
+  .panel .t-date { font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--text-faint); min-width: 120px; flex-shrink: 0; }
+  .panel .t-info h4 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .panel .t-info p { font-size: 14px; margin-bottom: 0; }
+  .panel-skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .panel-skills h4 { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+  .panel-skills ul { list-style: none; font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+  .panel-cta { display: inline-block; font-family: 'Space Grotesk', sans-serif; font-size: 14px; padding: 12px 28px; border: 1.5px solid var(--text); background: none; color: var(--text); text-decoration: none; position: relative; overflow: hidden; transition: color 0.35s ease; margin-top: 8px; }
+  .panel-cta::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--text); transition: left 0.35s cubic-bezier(0.25, 0.1, 0.25, 1); z-index: 0; }
+  .panel-cta:hover { color: var(--bg); }
+  .panel-cta:hover::before { left: 0; }
+  .panel-cta span { position: relative; z-index: 1; }
+  .panel-animate > * { opacity: 0; transform: translateY(12px); animation: panelFadeIn 0.4s ease forwards; }
+  .panel-animate > *:nth-child(1) { animation-delay: 0.05s; }
+  .panel-animate > *:nth-child(2) { animation-delay: 0.1s; }
+  .panel-animate > *:nth-child(3) { animation-delay: 0.15s; }
+  .panel-animate > *:nth-child(4) { animation-delay: 0.2s; }
+  .panel-animate > *:nth-child(5) { animation-delay: 0.25s; }
+  .panel-animate > *:nth-child(6) { animation-delay: 0.3s; }
+  .panel-animate > *:nth-child(7) { animation-delay: 0.35s; }
+  .panel-animate > *:nth-child(8) { animation-delay: 0.4s; }
+  .panel-animate > *:nth-child(9) { animation-delay: 0.45s; }
+  .panel-animate > *:nth-child(10) { animation-delay: 0.5s; }
+  .panel-animate > *:nth-child(11) { animation-delay: 0.55s; }
+  .panel-animate > *:nth-child(12) { animation-delay: 0.6s; }
+  .panel-animate > *:nth-child(13) { animation-delay: 0.65s; }
+  @keyframes panelFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  /* ═══ PROJECT LIST (More Projects panel) ═══ */
+  .project-list { display: flex; flex-direction: column; gap: 2px; }
+  .project-item {
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .project-item:hover { border-color: var(--accent); }
+  .project-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .project-item-domain {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .project-status {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    display: inline-block;
+    margin-top: 6px;
+  }
+  .project-item-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .project-item-timeline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+  .project-item-img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .project-item-toggle {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+  .project-item.expanded .project-item-toggle { transform: rotate(45deg); }
+  .project-item-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), padding 0.3s ease;
+    padding: 0 20px;
+  }
+  .project-item.expanded .project-item-body {
+    max-height: 1200px;
+    padding: 0 20px 20px;
+  }
+  .project-item-body p { font-size: 15px; }
+
+  @media (max-width: 768px) {
+    .foyer {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "hero"
+        "minipath"
+        "workflow"
+        "more-about";
+    }
+    .cell-hero { min-height: 50vh; grid-row: span 1; }
+    .cell { padding: 24px; min-height: 160px; }
+    .cell-stack { flex-direction: column; }
+    .panel { padding: 32px; }
+    .panel-skills { grid-template-columns: 1fr; }
+    .cursor-ring { display: none; }
+    .cell-shortcut { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOADING SCREEN ═══ -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-content">
+    <div class="loading-greeting">
+      <span>Hello,</span>
+      <span>hope you enjoy</span>
+    </div>
+    <div class="loading-spinner"></div>
+    <div class="loading-label">Loading</div>
+  </div>
+</div>
+
+<div class="cursor-ring" id="cursorRing"><span class="cursor-label">Open</span></div>
+
+<!-- ═══ FOYER ═══ -->
+<div class="foyer-wrap" id="foyerWrap">
+  <div class="foyer" id="foyer">
+
+    <div class="cell cell-hero">
+      <div class="hero-main">
+        <div class="cell-name">Feifei Deng</div>
+        <h1 class="cell-title">Designing for multi-modal experience.</h1>
+        <p class="cell-sub">Senior UX Designer at Amazon. Complex systems, physical operations, AI — where interface decisions have real-world consequences.</p>
+      </div>
+      <div class="hero-contact">
+        <div class="hero-contact-label">Get in touch</div>
+        <div class="hero-contact-links">
+          <a href="mailto:feifei-deng@hotmail.com">Email</a>
+          <a href="https://www.linkedin.com/in/feifei-deng" target="_blank">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+
+    <a class="cell cell-link cell-featured" href="minipath.html" data-key="1">
+      <div class="cell-peek"></div>
+      <span class="cell-shortcut">1</span>
+      <span class="cell-num">01</span>
+      <div class="cell-theme">Designing how designers create with AI</div>
+      <h2 class="cell-title">HappyPath &rarr; MiniPath</h2>
+      <p class="cell-sub">Built an AI prototyping tool, retro'd my own work, rebuilt from first principles</p>
+      <div class="cell-tags"><span class="cell-tag">0-to-1</span><span class="cell-tag">AI</span><span class="cell-tag">Interaction design</span></div>
+    </a>
+
+    <a class="cell cell-link cell-workflow" href="ai-workflow.html" data-key="2">
+      <div class="cell-peek"></div>
+      <span class="cell-shortcut">2</span>
+      <span class="cell-num">02</span>
+      <div class="cell-theme">Leading organizational change</div>
+      <h2 class="cell-title">AI Workflow<br>Transformation</h2>
+      <p class="cell-sub">From personal experiment to team capability in four months</p>
+      <div class="cell-tags"><span class="cell-tag">Leadership</span><span class="cell-tag">AI adoption</span></div>
+    </a>
+
+    <div class="cell-stack">
+      <a class="cell cell-link cell-more" href="more-projects.html" data-key="4">
+        <span class="cell-shortcut">4</span>
+        <span class="cell-num">+</span>
+        <div class="cell-theme">Explore more</div>
+        <h2 class="cell-title">More Projects</h2>
+        <p class="cell-sub">Robotics, operations, IoT, research</p>
+      </a>
+
+      <div class="cell cell-accent" data-panel="about" data-key="3">
+        <div class="cell-theme">Background</div>
+        <h2 class="cell-title">About Feifei</h2>
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+<!-- ═══ PROJECT PANELS ═══ -->
+<div class="panel-overlay" id="panelOverlay">
+  <div class="panel" id="panelContent"></div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script>
+/* ═══ PANELS ═══ */
+const panels = {
+  'about': `<button class="panel-close" onclick="closePanel()">&times;</button>
+<div class="panel-animate">
+  <div class="panel-theme">Background</div>
+  <h2>Designing across dimensions.</h2>
+
+  <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:24px;">
+    <img src="assets/about/portfolioProfile.JPG" alt="Feifei Deng" style="width:180px;border-radius:6px;flex-shrink:0;border:1px solid var(--border);">
+    <div>
+      <p>I'm a Senior UX Designer working at the intersection of complex systems, physical operations, and AI. I'm most drawn to the space where physical and digital experiences meet. As AI reshapes how we live and work, I keep asking: how will it enhance the physical interactions we already have — IoT, robotics, spatial computing? I'm not the most technical person in the room, but curiosity keeps me moving. I embrace the change and stay in motion.</p>
+      <p>Before tech, I studied interior design and landscape architecture — that foundation shapes how I approach every problem. I think about how people move through experiences the way an architect thinks about circulation.</p>
+    </div>
+  </div>
+
+  <div class="panel-divider"></div>
+
+  <div class="timeline-row"><div class="t-date">2022 – Present</div><div class="t-info"><h4>Sr. UX Designer — Amazon</h4><p>Delivery robotics, operational tools, AI prototyping. Across 5 spaces: simulation, teleoperation, fleet management, last-mile integration, HRI exploration.</p></div></div>
+  <div class="timeline-row"><div class="t-date">2021 – 2022</div><div class="t-info"><h4>Product Designer — Wyze</h4><p>Sole designer for IoT smart home experience.</p></div></div>
+  <div class="timeline-row"><div class="t-date">2019 – 2021</div><div class="t-info"><h4>M.S. HCDE — University of Washington</h4><p>IoT, accessibility, complex systems.</p></div></div>
+  <div class="timeline-row"><div class="t-date">Earlier</div><div class="t-info"><h4>M.S. Landscape Architecture — University of Washington</h4></div></div>
+  <div class="timeline-row"><div class="t-date"></div><div class="t-info"><h4>B.A. Environmental Design — Tsinghua University</h4></div></div>
+
+  <div class="panel-divider"></div>
+
+  <div class="panel-skills">
+    <div><h4>Design</h4><ul><li>UX / UI Design</li><li>Interaction Design</li><li>Design Systems</li><li>Prototyping</li><li>Illustration</li></ul></div>
+    <div><h4>Domains</h4><ul><li>IoT &amp; Smart Home</li><li>Human-Robot Interaction</li><li>Logistics &amp; Operations</li><li>AI Tools</li></ul></div>
+    <div><h4>What I bring</h4><ul><li>Spatial thinking</li><li>Systems framing</li><li>Stakeholder navigation</li><li>Ambiguity tolerance</li></ul></div>
+  </div>
+
+  <p style="margin-top:24px;font-size:14px;color:var(--text-faint);">Outside of work, I train Brazilian Jiu-Jitsu (blue belt and counting), share my home with four cats, and draw whenever I can. I also run Maomao Squad — a small illustration and stationery business featuring hand-drawn cat and dog art. Because craft should be joyful.</p>
+
+  <div style="margin-top:24px;"><a class="panel-cta" href="mailto:feifei-deng@hotmail.com"><span>Get in touch</span></a></div>
+</div>`,
+
+};
+
+
+/* ═══ STATE ═══ */
+const overlay = document.getElementById('panelOverlay');
+const panelContent = document.getElementById('panelContent');
+const cursorRing = document.getElementById('cursorRing');
+const foyerWrap = document.getElementById('foyerWrap');
+
+let cursorX = 0, cursorY = 0, ringX = 0, ringY = 0;
+
+/* ═══ CELL EXPAND — FULL PAGE ═══ */
+function expandToPage(cell, href) {
+  const rect = cell.getBoundingClientRect();
+  const bg = getComputedStyle(cell).backgroundColor;
+
+  const expand = document.createElement('div');
+  expand.className = 'cell-expand';
+  expand.style.top = rect.top + 'px';
+  expand.style.left = rect.left + 'px';
+  expand.style.width = rect.width + 'px';
+  expand.style.height = rect.height + 'px';
+  expand.style.background = bg;
+  document.body.appendChild(expand);
+
+  gsap.to(expand, {
+    top: 0, left: 0, width: '100vw', height: '100vh',
+    duration: 0.5, ease: 'power3.inOut',
+    onComplete: () => { window.location.href = href; }
+  });
+}
+
+/* ═══ CELL EXPAND — TO PANEL ═══ */
+function expandToPanel(cell, panelKey) {
+  const cellRect = cell.getBoundingClientRect();
+  const cellBg = getComputedStyle(cell).backgroundColor;
+
+  // Populate panel content and measure its final size
+  panelContent.innerHTML = panels[panelKey];
+  overlay.classList.add('measuring');
+  const panelEl = document.getElementById('panelContent');
+  const panelRect = panelEl.getBoundingClientRect();
+  overlay.classList.remove('measuring');
+
+  // Create expand overlay at cell position
+  const expand = document.createElement('div');
+  expand.className = 'cell-expand';
+  expand.style.top = cellRect.top + 'px';
+  expand.style.left = cellRect.left + 'px';
+  expand.style.width = cellRect.width + 'px';
+  expand.style.height = cellRect.height + 'px';
+  expand.style.background = cellBg;
+  expand.style.borderRadius = '0px';
+  document.body.appendChild(expand);
+
+  const tl = gsap.timeline();
+
+  // Animate expand from cell rect to panel rect, bg transitions to white
+  tl.to(expand, {
+    top: panelRect.top + 'px',
+    left: panelRect.left + 'px',
+    width: panelRect.width + 'px',
+    height: panelRect.height + 'px',
+    background: '#FFFFFF',
+    duration: 0.5,
+    ease: 'power3.inOut'
+  })
+  // Fade in the backdrop behind
+  .fromTo(overlay, {
+    opacity: 0, background: 'rgba(26,26,26,0)'
+  }, {
+    opacity: 1, background: 'rgba(26,26,26,0.4)',
+    duration: 0.3, ease: 'power2.out',
+    onStart: () => {
+      overlay.classList.add('no-transition', 'active');
+      panelEl.style.opacity = '0';
+    }
+  }, '-=0.2')
+  // Fade in panel content, remove expand
+  .to(panelEl, {
+    opacity: 1, duration: 0.25, ease: 'power2.out',
+    onComplete: () => {
+      expand.remove();
+      overlay.classList.remove('no-transition');
+    }
+  });
+}
+
+/* ═══ PAGE LINKS (MiniPath, AI Workflow) ═══ */
+document.querySelectorAll('a.cell-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    expandToPage(this, this.getAttribute('href'));
+  });
+});
+
+/* ═══ PANELS ═══ */
+document.querySelectorAll('.cell[data-panel]').forEach(cell => {
+  cell.addEventListener('click', () => {
+    expandToPanel(cell, cell.dataset.panel);
+  });
+});
+
+function closePanel() {
+  overlay.classList.remove('active');
+  const panelEl = document.getElementById('panelContent');
+  panelEl.style.opacity = '';
+}
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closePanel(); });
+
+/* ═══ CURSOR ═══ */
+document.addEventListener('mousemove', (e) => {
+  cursorX = e.clientX; cursorY = e.clientY;
+  cursorRing.classList.add('visible');
+});
+
+document.addEventListener('mouseleave', () => cursorRing.classList.remove('visible'));
+
+(function animateCursor() {
+  ringX += (cursorX - ringX) * 0.15;
+  ringY += (cursorY - ringY) * 0.15;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateCursor);
+})();
+
+document.querySelectorAll('.cell:not(.cell-hero)').forEach(cell => {
+  cell.addEventListener('mouseenter', () => cursorRing.classList.add('hovering'));
+  cell.addEventListener('mouseleave', () => cursorRing.classList.remove('hovering'));
+});
+
+/* ═══ GSAP LOADING → HERO ANIMATION ═══ */
+gsap.registerPlugin(ScrollTrigger);
+
+const loadingScreen = document.getElementById('loadingScreen');
+const heroCell = document.querySelector('.cell-hero');
+
+const hasVisited = sessionStorage.getItem('portfolio-loaded');
+
+// Remove CSS animation from all cells — GSAP handles entrance
+document.querySelectorAll('.cell').forEach(el => {
+  el.style.animation = 'none';
+  el.style.opacity = hasVisited ? '1' : '0';
+  el.style.transform = hasVisited ? 'none' : 'translateY(20px)';
+});
+
+// Make hero visible but behind loading screen
+heroCell.style.opacity = '1';
+heroCell.style.transform = 'none';
+
+// Skip loading screen on return visits
+if (hasVisited) {
+  loadingScreen.style.display = 'none';
+  document.querySelectorAll('.cell-hero .cell-name, .cell-hero .cell-sub, .cell-hero .hero-contact').forEach(el => {
+    el.style.opacity = '1';
+  });
+  // Run wave magnify on return visits too
+  runWaveMagnify();
+}
+
+const heroPhrases = [
+  'Designing for multi-modal experience.',
+  'Designing systems people can trust.',
+  'Designing for systems that think back.',
+  'Learn, think, evolve.'
+];
+let heroPhraseIdx = 0;
+
+function waveMagnifyText(titleEl, text) {
+  return new Promise(resolve => {
+    titleEl.innerHTML = '';
+    const chars = [];
+    const words = text.split(' ');
+    words.forEach((word, wi) => {
+      // Wrap each word in a non-breaking container
+      const wordWrap = document.createElement('span');
+      wordWrap.style.display = 'inline-block';
+      wordWrap.style.whiteSpace = 'nowrap';
+      for (const char of word) {
+        const span = document.createElement('span');
+        span.textContent = char;
+        span.style.display = 'inline-block';
+        wordWrap.appendChild(span);
+        chars.push(span);
+      }
+      titleEl.appendChild(wordWrap);
+      // Add space between words (except last)
+      if (wi < words.length - 1) {
+        const space = document.createTextNode(' ');
+        titleEl.appendChild(space);
+      }
+    });
+    titleEl.style.opacity = '1';
+    gsap.fromTo(chars,
+      { scale: 1.6, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.4)', stagger: 0.05,
+        onComplete: resolve }
+    );
+  });
+}
+
+function waveOut(titleEl) {
+  return new Promise(resolve => {
+    const chars = titleEl.querySelectorAll('span');
+    if (!chars.length) { resolve(); return; }
+    gsap.to(chars, {
+      scale: 0.8, opacity: 0, duration: 0.4, ease: 'power2.in', stagger: 0.02,
+      onComplete: resolve
+    });
+  });
+}
+
+let isAnimating = false;
+let wheelListenerReady = false;
+
+async function transitionToPhrase(titleEl, idx) {
+  if (isAnimating || idx === heroPhraseIdx) return;
+  isAnimating = true;
+  await waveOut(titleEl);
+  heroPhraseIdx = idx;
+  await waveMagnifyText(titleEl, heroPhrases[heroPhraseIdx]);
+  isAnimating = false;
+}
+
+function setupWheelListener(titleEl) {
+  if (wheelListenerReady) return;
+  wheelListenerReady = true;
+  let scrollAccum = 0;
+  const threshold = 150;
+
+  window.addEventListener('wheel', function(e) {
+    if (isAnimating) return;
+    scrollAccum += Math.abs(e.deltaY);
+    if (scrollAccum >= threshold) {
+      scrollAccum = 0;
+      const direction = e.deltaY > 0 ? 1 : -1;
+      const nextIdx = (heroPhraseIdx + direction + heroPhrases.length) % heroPhrases.length;
+      transitionToPhrase(titleEl, nextIdx);
+    }
+  }, { passive: true });
+}
+
+function runWaveMagnify() {
+  const titleEl = document.querySelector('.cell-hero .cell-title');
+  titleEl.style.opacity = '1';
+  isAnimating = true;
+  waveMagnifyText(titleEl, heroPhrases[0]).then(function() {
+    isAnimating = false;
+    setupWheelListener(titleEl);
+  });
+}
+
+function runLoadingSequence() {
+  const heroRect = heroCell.getBoundingClientRect();
+  const greetingEl = document.querySelector('.loading-greeting');
+  const greetingRect = greetingEl.getBoundingClientRect();
+
+  // Target: hero cell's center-left area (where the title will sit)
+  // Hero has padding 48px, title is roughly vertically centered
+  const targetX = heroRect.left + heroRect.width * 0.35;
+  const targetY = heroRect.top + heroRect.height * 0.45;
+  const dx = targetX - (greetingRect.left + greetingRect.width / 2);
+  const dy = targetY - (greetingRect.top + greetingRect.height / 2);
+  const targetScale = 2.8;
+
+  const masterTl = gsap.timeline();
+
+  // Phase 1: Hold loading screen, then fade out spinner + label
+  masterTl
+    .to({}, { duration: 1.6 })
+    .to('.loading-spinner', { opacity: 0, scale: 0.5, duration: 0.4, ease: 'power2.in' })
+    .to('.loading-label', { opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.3')
+
+  // Phase 2: Fix greeting in place, fade it out, shrink bg behind it
+    .add(function() {
+      // Lock greeting to its current viewport position so shrink doesn't move it
+      const content = document.querySelector('.loading-content');
+      const rect = content.getBoundingClientRect();
+      content.style.position = 'fixed';
+      content.style.top = rect.top + 'px';
+      content.style.left = rect.left + 'px';
+      content.style.width = rect.width + 'px';
+    })
+    .to('.loading-content', {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 'shrink')
+    .to(loadingScreen, {
+      top: heroRect.top + 'px',
+      left: heroRect.left + 'px',
+      width: heroRect.width + 'px',
+      height: heroRect.height + 'px',
+      duration: 1.0,
+      ease: 'power3.inOut',
+      onComplete: function() {
+        loadingScreen.style.display = 'none';
+      }
+    }, 'shrink')
+    // Hero title: per-character wave magnify
+    .add(function() { runWaveMagnify(); }, '-=0.3')
+    // Other cells fade in during shrink
+    .to('.cell:not(.cell-hero)', {
+      opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out'
+    }, '-=0.5')
+    // Rest of hero content
+    .fromTo('.cell-hero .cell-name',
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.3')
+    .fromTo('.cell-hero .cell-sub',
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.2')
+    .fromTo('.cell-hero .hero-contact',
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' }, '-=0.2');
+}
+
+// Run after page load — only on first visit
+if (!hasVisited) {
+  window.addEventListener('load', function() {
+    sessionStorage.setItem('portfolio-loaded', '1');
+    runLoadingSequence();
+  });
+}
+
+/* ═══ KEYBOARD ═══ */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closePanel(); }
+  // Keyboard triggers the same click handler (which now has expand effect)
+  const cell = document.querySelector(`.cell[data-key="${e.key}"]`);
+  if (cell) cell.click();
+});
+
+</script>
+</body>
+</html>

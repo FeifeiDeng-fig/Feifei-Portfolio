@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>More Projects — Feifei Deng</title>
+<meta name="description" content="More projects by Feifei Deng — robotics, operations, IoT, research.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F7F6F3;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --text-faint: #999;
+    --surface: #EDECEA;
+    --border: #D9D7D3;
+    --white: #FFFFFF;
+    --accent: #2d4a7a;
+    --accent-hover: #1e3660;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ BACK NAV ═══ */
+  .back-nav {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 100;
+  }
+
+  .back-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    display: inline-block;
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover { border-color: var(--text); color: var(--text); }
+
+  /* ═══ PAGE CONTENT ═══ */
+  .page-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  .panel-theme { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(32px, 5vw, 48px); font-weight: 500; line-height: 1.15; margin-bottom: 12px; }
+  p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px; max-width: 600px; }
+  .panel-divider { width: 40px; height: 1.5px; background: var(--accent); margin: 48px 0; }
+  .section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 24px; }
+  .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
+  .panel-tags { display: flex; gap: 6px; margin: 16px 0; flex-wrap: wrap; }
+  .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
+
+  /* ═══ PROJECT LIST ═══ */
+  .project-list { display: flex; flex-direction: column; gap: 2px; }
+  .project-item {
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .project-item:hover { border-color: var(--accent); }
+  .project-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .project-item-domain {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .project-status {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    display: inline-block;
+    margin-top: 6px;
+  }
+  .project-item-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .project-item-timeline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+  .project-item-img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .project-item-toggle {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+  .project-item.expanded .project-item-toggle { transform: rotate(45deg); }
+  .project-item-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), padding 0.3s ease;
+    padding: 0 20px;
+  }
+  .project-item.expanded .project-item-body {
+    max-height: 2000px;
+    padding: 0 20px 20px;
+  }
+  .project-item-body p { font-size: 15px; }
+
+  /* ═══ GALLERY GRID ═══ */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .gallery-grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .gallery-grid img:hover { opacity: 0.85; }
+  /* Let some images span 2 columns for visual variety */
+  .gallery-grid img:first-child {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  /* ═══ ANIMATE ═══ */
+  .panel-animate > * { opacity: 0; transform: translateY(12px); animation: panelFadeIn 0.4s ease forwards; }
+  .panel-animate > *:nth-child(1) { animation-delay: 0.05s; }
+  .panel-animate > *:nth-child(2) { animation-delay: 0.1s; }
+  .panel-animate > *:nth-child(3) { animation-delay: 0.15s; }
+  .panel-animate > *:nth-child(4) { animation-delay: 0.2s; }
+  .panel-animate > *:nth-child(5) { animation-delay: 0.25s; }
+  .panel-animate > *:nth-child(6) { animation-delay: 0.3s; }
+  @keyframes panelFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  /* ═══ INLINE PASSWORD PROMPT ═══ */
+  .pw-inline {
+    padding: 20px;
+    text-align: center;
+  }
+  .pw-inline p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    max-width: none;
+  }
+  .pw-inline input {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--text);
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .pw-inline input:focus {
+    border-color: var(--accent);
+  }
+  .pw-inline .pw-inline-error {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: #c0392b;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pw-inline .pw-inline-error.visible {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .page-content { padding: 80px 20px 80px; }
+    .back-nav { top: 16px; left: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="back-nav">
+  <a class="back-link" href="index.html">&larr; Back</a>
+</nav>
+
+<div class="page-content">
+  <div class="panel-animate">
+    <div class="panel-theme">More projects</div>
+    <h1>Different problems,<br>different shapes.</h1>
+
+    <!-- ═══ SECTION 1: WORK ═══ -->
+    <div class="section-label">Work</div>
+
+    <div class="project-list">
+      <div class="project-item" data-protected="true">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Autonomous Delivery Robots</div>
+            <h4 class="project-item-title">ADR UX — First designer, full ecosystem</h4>
+            <span class="project-status">Ongoing · Pilot Jul 2026</span>
+            <div class="project-item-timeline">Feb 2026 – Present</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <p>In late February I moved to Amazon's autonomous delivery robot team as the first and only UX designer across the entire ADR ecosystem. My job is to shape a cohesive experience that spans multiple systems and teams — simulation, teleoperation, fleet management, last-mile integration, and next-generation human-robot interaction.</p>
+          <p>There was no established UX practice and no dedicated PM. I work directly with engineering — iterating, discussing, exploring, and evolving together at the pace the problem demands.</p>
+          <div class="panel-highlight">Early UX assessment keeps things pointed in the right direction. I evaluate new initiatives before they solidify, flagging structural issues and interaction gaps while decisions are still cheap to change.</div>
+          <p>Across teams, I coordinate stakeholders and UX designers from different parts of the last-mile system to make sure robotic integration doesn't happen in isolation. The robot touches delivery workflows, driver tools, and customer-facing status — those seams need someone watching them.</p>
+          <div class="panel-highlight">I introduced an AI-driven handoff process that accelerates the product-to-design-to-engineering pipeline — fewer handoff artifacts, faster shared understanding.</div>
+          <p>On the research side, I'm exploring human-robot interaction for the next generation of delivery robots. How should a person on a sidewalk understand what the robot intends to do? How do remote operators build calibrated trust — enough to let the system work, not so much that they miss failures?</p>
+          <p>These questions sit at the intersection I keep returning to: physical operations, AI, and trust. Interfaces where decisions have consequences beyond the screen.</p>
+          <div class="panel-tags"><span class="panel-tag">HRI</span><span class="panel-tag">Cross-system UX</span><span class="panel-tag">First designer</span><span class="panel-tag">AI handoff</span><span class="panel-tag">Trust calibration</span></div>
+        </div>
+      </div>
+
+      <div class="project-item" data-protected="false">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Hackathon &middot; Gemini</div>
+            <h4 class="project-item-title">Cognos — From Chat to Cognition</h4>
+            <span class="project-status">Shipped</span>
+            <div class="project-item-timeline">Jan – Feb 2026</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <div style="position:relative;width:100%;padding-bottom:56.25%;margin-bottom:16px;border-radius:4px;overflow:hidden;border:1px solid var(--border);">
+            <iframe src="https://www.youtube.com/embed/Wv523X88sM0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <p>Gemini Hackathon project built with a fellow UX designer. We wanted to explore what AI conversations look like when they stop being linear chats and start behaving like spatial thinking — the way ideas actually form when you map them out.</p>
+          <div class="panel-highlight">Cognos shifts from chat-centric to object-centric cognition. You're not managing conversations — you're working with topics that evolve, questions that clarify, ideas that connect across sessions in non-linear ways.</div>
+          <p>The system analyzes chat history and organizes it into "Objects" — anchor topics of your thinking. Each Object contains "Nodes" — milestones, pivot points, facts, or concepts. As conversations continue, new connections emerge — the way our minds actually work.</p>
+          <p>As two UX designers without coding backgrounds, we vibe-coded the entire thing with Gemini as our development partner. Followed our UX process — user flows, screens, iteration — but with AI building alongside us. The biggest learning: prompt engineering itself can be AI-assisted. When stuck, we asked AI how to better talk to AI.</p>
+          <div class="panel-tags"><span class="panel-tag">Hackathon</span><span class="panel-tag">Vibe coding</span><span class="panel-tag">AI</span><span class="panel-tag">Spatial thinking</span><span class="panel-tag">Gemini</span></div>
+        </div>
+      </div>
+
+      <div class="project-item" data-protected="true">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Research &rarr; Product redirect</div>
+            <h4 class="project-item-title">DSP Business Health Dashboard</h4>
+            <span class="project-status">Handed off</span>
+            <div class="project-item-timeline">Nov 2025 – Feb 2026</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <img class="project-item-img" src="assets/dsp/Business Health.png" alt="DSP Business Health Dashboard">
+          <p>The team was building a Business Health Dashboard for Delivery Service Partners (DSPs) — the independent businesses that operate Amazon's last-mile delivery fleet. The assumption was that DSP owners needed a better data dashboard to track business performance.</p>
+          <div class="panel-highlight">I conducted 18 interviews and testing sessions with DSP owners. The finding was stark: there was a 50% misalignment between what the PRD specified and what users actually needed.</div>
+          <p>DSP owners didn't want another dashboard full of metrics. They wanted intelligent guidance — help understanding what the numbers meant for their business and what actions to take. The gap wasn't missing data. It was missing interpretation.</p>
+          <p>I produced a gap analysis comparing the PRD assumptions against actual user needs and distributed it to stakeholders. Rather than quietly adjusting my designs to compensate, I pushed the conversation upstream — making the case that we were solving the wrong problem and needed to reframe before investing in execution.</p>
+          <p>The research shifted the product conversation from "what metrics should we show" to "how do we help DSP owners make better business decisions."</p>
+          <div class="panel-highlight">Design craft matters. But knowing when to stop designing and challenge the premise matters more. Eighteen conversations changed the direction of a product — not because the research methodology was fancy, but because the right questions were asked early enough to matter.</div>
+          <div class="panel-tags"><span class="panel-tag">Research</span><span class="panel-tag">Operations</span><span class="panel-tag">Gap analysis</span><span class="panel-tag">PRD redirect</span></div>
+        </div>
+      </div>
+
+      <div class="project-item" data-protected="true">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Operations &middot; Real-time</div>
+            <h4 class="project-item-title">SCARTA — Container Tracking</h4>
+            <span class="project-status">Launched</span>
+            <div class="project-item-timeline">Aug 2024 – Oct 2024</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <img class="project-item-img" src="assets/SCARTA/Container dashboard.png" alt="SCARTA container tracking dashboard">
+          <p>Real-time container movement dashboard for Amazon sort center managers. The data was comprehensive but illegible. Ruthless information hierarchy — stripped to what drives the next decision.</p>
+          <div class="panel-tags"><span class="panel-tag">Operations</span><span class="panel-tag">Data visualization</span><span class="panel-tag">Sort center</span></div>
+        </div>
+      </div>
+
+      <div class="project-item" data-protected="true">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Construction &middot; Financial management</div>
+            <h4 class="project-item-title">Nazir — Construction Project Finance</h4>
+            <span class="project-status">Launched</span>
+            <div class="project-item-timeline">Aug 2022 – Jun 2023</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <p>A 0-to-1 financial management tool for Amazon construction projects. Worked with another UX designer to establish the information architecture, key modules, end-to-end user flows, and product direction from scratch.</p>
+          <p>Translated complex financial workflows into clear, navigable structures that construction project managers could use without specialized training.</p>
+          <div class="panel-tags"><span class="panel-tag">0-to-1</span><span class="panel-tag">IA</span><span class="panel-tag">Financial tools</span><span class="panel-tag">Collaboration</span></div>
+        </div>
+      </div>
+
+      <div class="project-item" data-protected="false">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">IoT &middot; Smart Home</div>
+            <h4 class="project-item-title">Wyze Air Purifier</h4>
+            <span class="project-status">Launched</span>
+            <div class="project-item-timeline">Nov 2021 – Jan 2022</div>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <img class="project-item-img" src="assets/wyze/Airpurifier cover.png" alt="Wyze Air Purifier app interface">
+          <p>Sole designer. 70% of smart purifier users never connected to the app. Reframed what the app was for — not more control, but contextual intelligence the physical device alone couldn't provide.</p>
+          <p>Shipped full IoT experience: setup, controls, settings, automation. Changed the team's mental model of "smart" from adding control to reducing the need for it.</p>
+          <p><a href="https://www.wyze.com/products/wyze-air-purifier?srsltid=AfmBOoolFh7nNKlHtVrIsLP0MijjaEtulyTad4GKv_hZn-9N5JkwjXFp" target="_blank" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">View product &rarr;</a></p>
+          <div class="panel-tags"><span class="panel-tag">IoT</span><span class="panel-tag">Sole designer</span><span class="panel-tag">Physical-digital</span></div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- ═══ SECTION 2: ILLUSTRATIONS & WRITING ═══ -->
+    <div class="panel-divider"></div>
+
+    <div class="section-label">Illustrations &amp; Writing</div>
+
+    <div class="project-list">
+      <div class="project-item" onclick="this.classList.toggle('expanded')">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Illustration &middot; Maomao Squad</div>
+            <h4 class="project-item-title">Cats</h4>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <div class="gallery-grid">
+            <img src="assets/illustrations/Cats/Logo.PNG" alt="Cats logo" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork 3.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork 4.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork 5.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork 6.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork 8.PNG" alt="Cat illustration" loading="lazy">
+            <img src="assets/illustrations/Cats/Untitled_Artwork.jpg" alt="Cat illustration" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="project-item" onclick="this.classList.toggle('expanded')">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Illustration &middot; Hand drawn</div>
+            <h4 class="project-item-title">Hand Drawing</h4>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <div class="gallery-grid">
+            <img src="assets/illustrations/Hand drawing/IMG_0429.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_0430.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_1181.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_3090.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_3092.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_3094.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_7289.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_7485.JPG" alt="Hand drawing" loading="lazy">
+            <img src="assets/illustrations/Hand drawing/IMG_7508.JPG" alt="Hand drawing" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="project-item" onclick="this.classList.toggle('expanded')">
+        <div class="project-item-header">
+          <div>
+            <div class="project-item-domain">Illustration &middot; Portraits</div>
+            <h4 class="project-item-title">TeamMates</h4>
+          </div>
+          <span class="project-item-toggle">+</span>
+        </div>
+        <div class="project-item-body">
+          <div class="gallery-grid">
+            <img src="assets/illustrations/TeamMates/ino.PNG" alt="Ino portrait" loading="lazy">
+            <img src="assets/illustrations/TeamMates/nisha.PNG" alt="Nisha portrait" loading="lazy">
+            <img src="assets/illustrations/TeamMates/peggy.PNG" alt="Peggy portrait" loading="lazy">
+            <img src="assets/illustrations/TeamMates/vincent.PNG" alt="Vincent portrait" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var CORRECT_PW = 'Feifei';
+  var AUTH_KEY = 'portfolio_auth';
+
+  function isAuthed() {
+    return sessionStorage.getItem(AUTH_KEY) === 'granted';
+  }
+
+  // For protected items, inject inline password prompt into the body
+  document.querySelectorAll('.project-item[data-protected]').forEach(function(item) {
+    var isProtected = item.getAttribute('data-protected') === 'true';
+
+    item.addEventListener('click', function(e) {
+      // Don't toggle if clicking inside the password input area
+      if (e.target.closest('.pw-inline')) return;
+
+      if (isProtected && !isAuthed()) {
+        // Show password prompt instead of content
+        if (!item.classList.contains('expanded')) {
+          item.classList.add('expanded');
+          var body = item.querySelector('.project-item-body');
+          // Hide original content, show prompt
+          var originalContent = body.innerHTML;
+          body.setAttribute('data-original', originalContent);
+          body.innerHTML = '<div class="pw-inline">' +
+            '<p>This project contains confidential work. Enter password to view.</p>' +
+            '<input type="password" class="pw-inline-input" placeholder="Password" autocomplete="off">' +
+            '<div class="pw-inline-error">Incorrect password</div>' +
+            '</div>';
+          var inp = body.querySelector('.pw-inline-input');
+          var err = body.querySelector('.pw-inline-error');
+          setTimeout(function() { inp.focus(); }, 100);
+          inp.addEventListener('keydown', function(ev) {
+            if (ev.key === 'Enter') {
+              if (inp.value === CORRECT_PW) {
+                sessionStorage.setItem(AUTH_KEY, 'granted');
+                // Restore this item's content
+                body.innerHTML = body.getAttribute('data-original');
+                body.removeAttribute('data-original');
+                // Also unlock all other protected items that might be showing prompts
+                document.querySelectorAll('.project-item[data-protected="true"]').forEach(function(pi) {
+                  var b = pi.querySelector('.project-item-body');
+                  if (b.hasAttribute('data-original')) {
+                    b.innerHTML = b.getAttribute('data-original');
+                    b.removeAttribute('data-original');
+                  }
+                });
+              } else {
+                err.classList.add('visible');
+                inp.value = '';
+              }
+            }
+          });
+          inp.addEventListener('input', function() {
+            err.classList.remove('visible');
+          });
+        } else {
+          // Collapse: restore original content if prompt is showing
+          var body = item.querySelector('.project-item-body');
+          if (body.hasAttribute('data-original')) {
+            body.innerHTML = body.getAttribute('data-original');
+            body.removeAttribute('data-original');
+          }
+          item.classList.remove('expanded');
+        }
+      } else {
+        // Normal toggle (unprotected or already authenticated)
+        item.classList.toggle('expanded');
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

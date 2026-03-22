@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Transformation — Feifei Deng</title>
+<meta name="description" content="From personal experiment to team capability in four months. A case study by Feifei Deng.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F7F6F3;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --text-faint: #999;
+    --surface: #EDECEA;
+    --border: #D9D7D3;
+    --white: #FFFFFF;
+    --accent: #2d4a7a;
+    --accent-hover: #1e3660;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .back-nav {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 100;
+  }
+
+  .back-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover { border-color: var(--text); color: var(--text); }
+
+  .page-content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  .panel-theme { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(32px, 5vw, 48px); font-weight: 500; line-height: 1.15; margin-bottom: 12px; }
+  .panel-role { font-size: 14px; color: var(--text-faint); margin-bottom: 32px; font-family: 'Space Grotesk', sans-serif; }
+  p { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px; max-width: 600px; }
+  .panel-divider { width: 40px; height: 1.5px; background: var(--accent); margin: 36px 0; }
+  .panel-section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
+  .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
+  .panel-tags { display: flex; gap: 6px; margin: 28px 0; flex-wrap: wrap; }
+  .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
+
+  .panel-animate > * { opacity: 0; transform: translateY(12px); animation: panelFadeIn 0.4s ease forwards; }
+  .panel-animate > *:nth-child(1) { animation-delay: 0.05s; }
+  .panel-animate > *:nth-child(2) { animation-delay: 0.1s; }
+  .panel-animate > *:nth-child(3) { animation-delay: 0.15s; }
+  .panel-animate > *:nth-child(4) { animation-delay: 0.2s; }
+  .panel-animate > *:nth-child(5) { animation-delay: 0.25s; }
+  .panel-animate > *:nth-child(6) { animation-delay: 0.3s; }
+  .panel-animate > *:nth-child(7) { animation-delay: 0.35s; }
+  .panel-animate > *:nth-child(8) { animation-delay: 0.4s; }
+  .panel-animate > *:nth-child(9) { animation-delay: 0.45s; }
+  .panel-animate > *:nth-child(10) { animation-delay: 0.5s; }
+  .panel-animate > *:nth-child(n+11) { animation-delay: 0.55s; }
+  @keyframes panelFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 768px) {
+    .page-content { padding: 80px 20px 80px; }
+    .back-nav { top: 16px; left: 16px; }
+  }
+  /* ═══ PASSWORD OVERLAY ═══ */
+  .pw-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+  .pw-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pw-box {
+    text-align: center;
+    max-width: 380px;
+    padding: 0 24px;
+  }
+  .pw-box p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: none;
+  }
+  .pw-box input {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .pw-box input:focus {
+    border-color: var(--accent);
+  }
+  .pw-box .pw-error {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .pw-box .pw-error.visible {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <p>This project contains confidential work. Enter password to continue.</p>
+    <input type="password" id="pwInput" placeholder="Password" autocomplete="off">
+    <div class="pw-error" id="pwError">Incorrect password</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var overlay = document.getElementById('pwOverlay');
+  var input = document.getElementById('pwInput');
+  var error = document.getElementById('pwError');
+  if (sessionStorage.getItem('portfolio_auth') === 'granted') {
+    overlay.remove();
+    return;
+  }
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      if (input.value === 'Feifei') {
+        sessionStorage.setItem('portfolio_auth', 'granted');
+        overlay.classList.add('fade-out');
+        setTimeout(function() { overlay.remove(); }, 400);
+      } else {
+        error.classList.add('visible');
+        input.value = '';
+      }
+    }
+  });
+  input.addEventListener('input', function() {
+    error.classList.remove('visible');
+  });
+})();
+</script>
+
+<nav class="back-nav">
+  <a class="back-link" href="index.html">&larr; Back</a>
+</nav>
+
+<div class="page-content">
+  <div class="panel-animate">
+    <div class="panel-theme">From personal experiment to team capability in four months</div>
+    <h1>Transforming How a Design Team Works with AI</h1>
+    <div class="panel-role">Sr. UX Designer &middot; Amazon &middot; Nov 2025 – Mar 2026</div>
+
+    <div class="panel-section-label">The arc</div>
+    <p>In November 2025, I started experimenting with AI to help with my own design work. By March 2026, I had architected how my entire team integrates AI into their practice — built the tools, created the learning programs, and proved the approach works by shipping real prototypes.</p>
+    <p>This wasn't a mandated initiative. There was no AI transformation roadmap. I saw an opportunity, ran experiments, and scaled what worked.</p>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label">What I learned: the bottleneck is context, not capability</div>
+    <div class="panel-highlight">Early on, I discovered that using AI "adjacent" to my workflow — asking it questions, generating one-off outputs — produced mediocre results. The shift came when I stopped treating AI as a tool to query and started designing the context architecture around it.</div>
+
+    <p>I built a markdown documentation system to manage all my projects and create a persistent context pool. I created structured memory, process definitions, and expectation frameworks so AI could understand not just what I wanted, but how I work and what quality means in my domain.</p>
+    <p>The result: consistent, high-quality output that actually fit into my workflow instead of requiring translation.</p>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label">From my workflow to the team's</div>
+
+    <div class="panel-highlight">New handoff process</div>
+    <p>I worked with my engineering team to experiment with a new design-to-dev handoff. My latest design handoff was a vibe-coded React prototype using components from our actual design system. Not a static spec — a working, interactive artifact that engineers could inspect and build from.</p>
+
+    <div class="panel-highlight">Tools and extensions</div>
+    <p>I built MiniPath, custom skills, and extensions that package my optimized workflow into tools the team can use without replicating months of personal experimentation.</p>
+
+    <div class="panel-highlight">Learning program</div>
+    <p>Rather than a one-size-fits-all training, I designed differentiated learning paths based on job-to-be-done. Different designers have different entry points and goals with AI — the program meets them where they are.</p>
+
+    <div class="panel-highlight">Proving it works</div>
+    <p>When people across the team wondered whether AI could build certain types of prototypes for their research needs, I jumped in to vibe-code working proofs while others assumed it couldn't be done. Showing beats telling.</p>
+
+    <div class="panel-divider"></div>
+
+    <div class="panel-section-label">What this taught me about AI adoption</div>
+    <div class="panel-highlight">The hardest part of integrating AI into a design practice isn't the technology. It's designing the system around it — the context structures, the quality expectations, the handoff patterns, the learning pathways. That's design work, even though it doesn't produce screens.</div>
+
+    <div class="panel-tags"><span class="panel-tag">Leadership</span><span class="panel-tag">AI adoption</span><span class="panel-tag">Context architecture</span><span class="panel-tag">Team enablement</span></div>
+  </div>
+</div>
+
+</body>
+</html>
