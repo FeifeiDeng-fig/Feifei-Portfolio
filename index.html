@@ -817,16 +817,6 @@ document.querySelectorAll('.cell').forEach(el => {
 heroCell.style.opacity = '1';
 heroCell.style.transform = 'none';
 
-// Skip loading screen on return visits
-if (hasVisited) {
-  loadingScreen.style.display = 'none';
-  document.querySelectorAll('.cell-hero .cell-name, .cell-hero .cell-sub, .cell-hero .hero-contact').forEach(el => {
-    el.style.opacity = '1';
-  });
-  // Run wave magnify on return visits too
-  runWaveMagnify();
-}
-
 const heroPhrases = [
   'Designing for multi-modal experience.',
   'Designing systems people can trust.',
@@ -834,6 +824,8 @@ const heroPhrases = [
   'Learn, think, evolve.'
 ];
 let heroPhraseIdx = 0;
+let isAnimating = false;
+let wheelListenerReady = false;
 
 function waveMagnifyText(titleEl, text) {
   return new Promise(resolve => {
@@ -879,9 +871,6 @@ function waveOut(titleEl) {
   });
 }
 
-let isAnimating = false;
-let wheelListenerReady = false;
-
 async function transitionToPhrase(titleEl, idx) {
   if (isAnimating || idx === heroPhraseIdx) return;
   isAnimating = true;
@@ -909,6 +898,72 @@ function setupWheelListener(titleEl) {
   }, { passive: true });
 }
 
+function getHeroChars(titleEl) {
+  var allChars = [];
+  titleEl.querySelectorAll(':scope > span').forEach(function(w) {
+    w.querySelectorAll('span').forEach(function(c) { allChars.push(c); });
+  });
+  return allChars;
+}
+
+function handleHeroMouseMove(e) {
+  var titleEl = document.querySelector('.cell-hero .cell-title');
+  if (!titleEl || isAnimating) return;
+  var allChars = getHeroChars(titleEl);
+  if (!allChars.length) return;
+
+  allChars.forEach(function(char) {
+    var rect = char.getBoundingClientRect();
+    var charCenterX = rect.left + rect.width / 2;
+    var charCenterY = rect.top + rect.height / 2;
+    var distX = Math.abs(e.clientX - charCenterX);
+    var distY = Math.abs(e.clientY - charCenterY);
+    var dist = Math.sqrt(distX * distX + distY * distY);
+    var maxDist = 120;
+    if (dist < maxDist) {
+      var proximity = 1 - (dist / maxDist);
+      gsap.killTweensOf(char, 'y,scale');
+      gsap.to(char, {
+        y: -18 * proximity,
+        scale: 1 + 0.2 * proximity,
+        opacity: 1,
+        duration: 0.3,
+        ease: 'back.out(2)'
+      });
+    } else {
+      gsap.killTweensOf(char, 'y,scale');
+      gsap.to(char, {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out'
+      });
+    }
+  });
+}
+
+function handleHeroMouseLeave() {
+  var titleEl = document.querySelector('.cell-hero .cell-title');
+  if (!titleEl) return;
+  var allChars = getHeroChars(titleEl);
+  allChars.forEach(function(char) { gsap.killTweensOf(char, 'y,scale'); });
+  gsap.to(allChars, { y: 0, scale: 1, opacity: 1, duration: 0.6, ease: 'power2.out' });
+}
+
+// Bind to the hero cell itself — survives DOM rebuilds of title content
+(function() {
+  var heroCell = document.querySelector('.cell-hero');
+  if (heroCell) {
+    heroCell.addEventListener('mousemove', handleHeroMouseMove);
+    heroCell.addEventListener('mouseleave', handleHeroMouseLeave);
+  }
+})();
+
+function setupHoverRipple(titleEl) {
+  // No-op — listeners are on the hero cell, always active
+}
+
 function runWaveMagnify() {
   const titleEl = document.querySelector('.cell-hero .cell-title');
   titleEl.style.opacity = '1';
@@ -916,6 +971,7 @@ function runWaveMagnify() {
   waveMagnifyText(titleEl, heroPhrases[0]).then(function() {
     isAnimating = false;
     setupWheelListener(titleEl);
+    setupHoverRipple(titleEl);
   });
 }
 
@@ -990,6 +1046,16 @@ if (!hasVisited) {
     sessionStorage.setItem('portfolio-loaded', '1');
     runLoadingSequence();
   });
+}
+
+// Skip loading screen on return visits
+if (hasVisited) {
+  loadingScreen.style.display = 'none';
+  document.querySelectorAll('.cell-hero .cell-name, .cell-hero .cell-sub, .cell-hero .hero-contact').forEach(el => {
+    el.style.opacity = '1';
+  });
+  // Run wave magnify on return visits too
+  runWaveMagnify();
 }
 
 /* ═══ KEYBOARD ═══ */
