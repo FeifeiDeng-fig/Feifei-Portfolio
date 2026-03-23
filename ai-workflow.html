@@ -74,6 +74,10 @@
   .panel-divider { width: 40px; height: 1.5px; background: var(--accent); margin: 36px 0; }
   .panel-section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
   .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
+  .panel-img { width: 100%; margin: 20px 0 28px; overflow: hidden; }
+  .panel-img img { width: 100%; height: 280px; object-fit: cover; object-position: center center; display: block; }
+  .panel-img.full-height img { height: auto; object-fit: initial; }
+
   .panel-tags { display: flex; gap: 6px; margin: 28px 0; flex-wrap: wrap; }
   .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
 
@@ -195,35 +199,48 @@
   <div class="panel-animate">
     <div class="panel-theme">From personal experiment to team capability in four months</div>
     <h1>Transforming How a Design Team Works with AI</h1>
-    <div class="panel-role">Sr. UX Designer &middot; Amazon &middot; Nov 2025 – Mar 2026</div>
+    <div class="panel-role">Sr. UX Designer &middot; Amazon &middot; Aug 2025 – Present</div>
 
     <div class="panel-section-label">The arc</div>
-    <p>In November 2025, I started experimenting with AI to help with my own design work. By March 2026, I had architected how my entire team integrates AI into their practice — built the tools, created the learning programs, and proved the approach works by shipping real prototypes.</p>
-    <p>This wasn't a mandated initiative. There was no AI transformation roadmap. I saw an opportunity, ran experiments, and scaled what worked.</p>
+    <p>In August 2025, I started incorporating AI into my design work — beginning with Amazon Q and the Amazon Quick Suite, which gave us access to internal context and the ability to build project- and team-specific knowledge bases.</p>
+    <p>As my understanding deepened and matured, I force-multiplied my practice. By March 2026, I wasn't just optimizing my own workflow — I was sharing what I'd learned, designing programs, and building tools to help the whole team grow together. The team isn't fully AI-native yet, but I'm actively experimenting and scaling. Because I'd rather move further with the team than just fast on my own.</p>
+
+    <div class="panel-img full-height"><img src="assets/ai-workflow/AIWorkflowChanges.png" alt="Refining the AI workflow"></div>
 
     <div class="panel-divider"></div>
 
     <div class="panel-section-label">What I learned: the bottleneck is context, not capability</div>
-    <div class="panel-highlight">Early on, I discovered that using AI "adjacent" to my workflow — asking it questions, generating one-off outputs — produced mediocre results. The shift came when I stopped treating AI as a tool to query and started designing the context architecture around it.</div>
+    <div class="panel-highlight">AI could do a lot — but using it ad hoc only assisted my existing workflow. It didn't optimize it. The real shift came when I stopped treating AI as a tool to query and started redesigning my workflow with AI as a partner.</div>
 
-    <p>I built a markdown documentation system to manage all my projects and create a persistent context pool. I created structured memory, process definitions, and expectation frameworks so AI could understand not just what I wanted, but how I work and what quality means in my domain.</p>
-    <p>The result: consistent, high-quality output that actually fit into my workflow instead of requiring translation.</p>
+    <p>I started with Quick Suite to summarize PRDs and long documents, which cut down reading time. I used Cline in VS Code and Kiro to create early concepts for testing and stakeholder communication. I built a knowledge base I could query when I had questions about my projects.</p>
+    <p>Useful — but as someone who's always optimizing how I work, I noticed three gaps:</p>
+    <p>First, my real pain point was never reading speed — it was the challenge of documenting my scattered thoughts while reading. Summarization helped me consume faster, but didn't help me think better.</p>
+    <p>Second, using AI ad hoc meant bolting it onto a workflow that wasn't designed for it. What if I rebuilt the system from scratch with AI as an integrated partner — streamlining steps that had always been separate?</p>
+    <p>Third, nothing I produced in those early experiments built on itself. Artifacts couldn't be reused across stages, or they got buried. There was no persistent context foundation I could carry through every step of my process.</p>
+    <p>So I built a markdown-based system that turns scattered inputs — meeting notes, BRDs, stakeholder conversations — into organized, traceable design rationale. Thoughts start messy and graduate into structured decisions. AI acts as thinking partner, meeting companion, and document maintainer across the whole system. Plain markdown, fully portable, no special tooling — a persistent context pool that compounds over time instead of starting from zero every session.</p>
 
     <div class="panel-divider"></div>
 
     <div class="panel-section-label">From my workflow to the team's</div>
 
+    <div class="panel-highlight">Tools and extensions</div>
+    <p>I'm always observing gaps in my team's process and proactively building tools or running experiments to fill them — without waiting for a mandate or roadmap.</p>
+    <p>Other teams within our org had Meridian MCP support for AI prototyping, but the Transporter team using Rabbit Design System had nothing — they weren't using AI in their prototyping process at all. To unblock them, I used Kiro to build a custom Rabbit DS MCP server, enabling the team to prototype with the right components and tokens for the first time. I also experimented with Agent2Figma for recreating pages in Figma from screenshots, and distilled the learnings into guidance docs teammates can feed directly to their AI tools. MiniPath is the more ambitious bet — a tool I'm building to help designers create high-quality prototypes with the least possible learning curve.</p>
+
+    <div class="panel-img"><img src="assets/ai-workflow/BuildfortheTeam.png" alt="Tools and extensions for AI workflow"></div>
+
+    <div class="panel-highlight">Learning program</div>
+    <p>The existing AI program in our studio was heavy on tool sharing and article roundups but light on engagement — and AI tools need hands-on experience to truly embed into a workflow, especially when everyone works differently. Knowing this gap, I partnered with another UXD to propose an AI maturity assessment framework to our director, mapping where the team stood and why. From there, we proposed three programs designed to accelerate adoption: AI Buddy (peer pairing for hands-on learning), AI "Book Club" (shared experimentation sessions), and a Hackathon to push the team's comfort zone.</p>
+
+    <div class="panel-highlight">Proving it works</div>
+    <p>Embracing AI has changed my mindset. Now when I face an unfamiliar problem or wonder whether something is possible, instead of asking around and stopping when people say it can't be done — I test it myself. When a teammate asked whether they could vibe-code a prototype for accessibility testing, I quickly ran an experiment in Kiro and proved it was possible. That unlocked the team to test a flow with users who have hearing impairments — something that wouldn't have happened if we'd taken "impossible" as the answer.</p>
+
+    <div class="panel-img"><img src="assets/ai-workflow/ThinktoBuild.png" alt="Proving AI prototyping works for the team"></div>
+
     <div class="panel-highlight">New handoff process</div>
     <p>I worked with my engineering team to experiment with a new design-to-dev handoff. My latest design handoff was a vibe-coded React prototype using components from our actual design system. Not a static spec — a working, interactive artifact that engineers could inspect and build from.</p>
 
-    <div class="panel-highlight">Tools and extensions</div>
-    <p>I built MiniPath, custom skills, and extensions that package my optimized workflow into tools the team can use without replicating months of personal experimentation.</p>
-
-    <div class="panel-highlight">Learning program</div>
-    <p>Rather than a one-size-fits-all training, I designed differentiated learning paths based on job-to-be-done. Different designers have different entry points and goals with AI — the program meets them where they are.</p>
-
-    <div class="panel-highlight">Proving it works</div>
-    <p>When people across the team wondered whether AI could build certain types of prototypes for their research needs, I jumped in to vibe-code working proofs while others assumed it couldn't be done. Showing beats telling.</p>
+    <div class="panel-img full-height"><img src="assets/ai-workflow/Newhandoff.png" alt="New design-to-dev handoff process"></div>
 
     <div class="panel-divider"></div>
 
