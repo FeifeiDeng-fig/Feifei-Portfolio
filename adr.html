@@ -76,6 +76,9 @@
   .panel-highlight { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--text); margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent); }
   .panel-img { width: 100%; margin: 20px 0 28px; overflow: hidden; }
   .panel-img img { width: 100%; height: auto; display: block; }
+  .panel-video { width: 100%; margin: 20px 0 28px; }
+  .panel-video video { width: 100%; display: block; }
+  .panel-caption { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--text-faint); margin-top: 8px; }
   .panel-tags { display: flex; gap: 6px; margin: 28px 0; flex-wrap: wrap; }
   .panel-tag { font-size: 10px; letter-spacing: 0.5px; padding: 4px 10px; border: 1px solid var(--border); color: var(--text-muted); }
 
@@ -226,7 +229,15 @@
     <div class="panel-divider"></div>
 
     <div class="panel-section-label">AI-driven handoff</div>
-    <div class="panel-highlight">I introduced an AI-driven handoff process that accelerates the design-to-engineering pipeline — fewer handoff artifacts, faster shared understanding.</div>
+    <div class="panel-highlight">Working with a new technology was the perfect opportunity to establish a new process — not just adopt AI tools, but rethink how design and engineering collaborate.</div>
+    <p>I pitched the engineering team on handing off React prototypes instead of static Figma screens. They were open to experimenting together — both sides exploring and refining the process as we went.</p>
+    <p>The workflow: I started with lo-fi interactive prototypes to walk through key user flows, identify high-level object models, and align on direction. Then I handed off React prototypes for the flows we identified, built with real design system components. The engineering team was able to push the code package I shared into their codebase and connect it to their backend with minimal tweaks — saving significant front-end development time.</p>
+    <div class="panel-video">
+      <video autoplay loop muted playsinline>
+        <source src="assets/adr/Simulation-aiHandoff.mp4" type="video/mp4">
+      </video>
+      <div class="panel-caption">ADR Simulation system — built by Claude Code + Meridian MCP, with project context from the markdown file system I built earlier</div>
+    </div>
 
     <div class="panel-divider"></div>
 
